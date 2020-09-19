@@ -2,7 +2,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+// ignore: must_be_immutable
 class CategoryIdDropdownList extends StatefulWidget {
+  //String categoryId;
   @override
   _CategoryIdDropdownListState createState() => _CategoryIdDropdownListState();
 }

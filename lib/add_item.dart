@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:item/category_id_dropdown_list.dart';
 import 'package:item/item.dart';
 import 'dart:async';
 import 'package:http/http.dart' as http;
@@ -37,6 +36,27 @@ class _AddItemState extends State<AddItem> {
   final TextEditingController controllerItemCode = TextEditingController();
   final TextEditingController controllerCategoryId = TextEditingController();
   Future<Item> _futureAlbum;
+  List categoryData = List();
+  String selectedCategoryId;
+
+  Future<String> category() async {
+    var res = await http.get(
+        Uri.encodeFull("http://192.168.100.56:8000/api/categories"),
+        headers: {"Accept": "application/json"});
+
+    var resBody = json.decode(res.body);
+
+    setState(() {
+      categoryData = resBody;
+    });
+    return "Succes!";
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    this.category();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +90,33 @@ class _AddItemState extends State<AddItem> {
                       decoration:
                           InputDecoration(hintText: 'Enter Category ID'),
                     ), */
-                    CategoryIdDropdownList(),
+                    DropdownButton(
+                          items: categoryData.map((item) {
+                            return new DropdownMenuItem(
+                                child: new Text(
+                                  item[
+                                      'name'], //Names that the api dropdown contains
+                                  style: TextStyle(
+                                    fontSize: 13.0,
+                                  ),
+                                ),
+                                value: item['id']
+                                    .toString() //Id that has to be passed that the dropdown has.....
+                                //e.g   India (Name)    and   its   ID (55fgf5f6frf56f) somethimg like that....
+                                );
+                          }).toList(),
+                          onChanged: (String newVal) {
+                            setState(() {
+                              selectedCategoryId = newVal;
+                              print(selectedCategoryId.toString());
+                              print(selectedCategoryId is String);
+                              return selectedCategoryId;
+                            });
+                          },
+                          value:
+                              selectedCategoryId,
+                           //pasing the default id that has to be viewed... //i havnt used something ... //you can place some (id)
+                        ),
                     RaisedButton(
                       child: Text('Create Data'),
                       onPressed: () {
@@ -79,7 +125,7 @@ class _AddItemState extends State<AddItem> {
                             controllerName.text,
                             controllerItemCode.text,
                             //category id from dropdown list
-                            int.parse(CategoryIdDropdownList().categoryId),
+                            int.parse(selectedCategoryId),
                           );
                         });
                       },
@@ -102,4 +148,3 @@ class _AddItemState extends State<AddItem> {
     );
   }
 }
-
